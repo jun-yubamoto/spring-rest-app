@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>com.example.ybmt.jun.spring.web</groupId>
+		<artifactId>spring-rest-app-parent</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+		<relativePath>../</relativePath>
+	</parent>
+
+	<groupId>com.example.ybmt.jun.orm</groupId>
+	<artifactId>mybatis-orm-generate</artifactId>
+	<name>${project.artifactId}</name>
+	<description>Generate Custom PostgreSQL DockerImage AND Mybatis Entity and Mapper from DDL</description>
+
+	
+	<dependencies>
+		<dependency>
+			<groupId>org.mybatis.spring.boot</groupId>
+			<artifactId>mybatis-spring-boot-starter</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<optional>true</optional>
+		</dependency>
+ 	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<executions>
+					 <execution>
+						<id>resource-filtering</id>
+						<phase>validate</phase>
+						<goals>
+							<goal>resources</goal>
+						</goals>
+					 </execution>
+				</executions>
+			  </plugin>
+			<plugin>
+				<groupId>com.dkanejs.maven.plugins</groupId>
+				<artifactId>docker-compose-maven-plugin</artifactId>
+				<configuration>
+					<composeFile>${project.build.outputDirectory}/docker-compose.yaml</composeFile>
+					<envVars>
+						<IMAGE_NAME>postgres:${postgresql.server.version}-${project.artifactId}-${project.version}</IMAGE_NAME>
+						<POSTGRESQL_VERSION>${postgresql.server.version}</POSTGRESQL_VERSION>
+						<POSTGRES_DB>postgres</POSTGRES_DB>
+						<POSTGRES_USER>postgres</POSTGRES_USER>
+						<POSTGRES_PASSWORD>postgres</POSTGRES_PASSWORD>
+						<POSTGRES_INITDB_ARGS>--encoding=UTF-8 --locale=C</POSTGRES_INITDB_ARGS>
+					</envVars>
+				</configuration>
+				<executions>
+					<execution>
+						<id>docker-build</id>
+						<phase>validate</phase>
+						<goals>
+							<goal>build</goal>
+						</goals>
+						<configuration>
+							<buildArgs>
+								<noCache>true</noCache>
+								<alwaysPull>true</alwaysPull>
+							</buildArgs>
+						</configuration>
+					</execution>
+					<execution>
+						<id>up</id>
+						<phase>initialize</phase>
+						<goals>
+							<goal>up</goal>
+						</goals>
+						<configuration>
+							<detachedMode>true</detachedMode>
+						</configuration>
+					</execution>
+					<execution>
+						<id>down</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>down</goal>
+						</goals>
+						<configuration>
+							<removeVolumes>true</removeVolumes>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>wait</id>
+                        <phase>initialize</phase>
+                        <configuration>
+                            <target>
+                                <sleep seconds="5" />
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+			</plugin>
+			<plugin>
+				<groupId>org.mybatis.generator</groupId>
+				<artifactId>mybatis-generator-maven-plugin</artifactId>
+				<configuration>
+					<configurationFile>${project.build.outputDirectory}/generatorConfig.xml</configurationFile>
+					<overwrite>true</overwrite>
+				</configuration>
+				<executions>
+					<execution>
+					  <id>Generate MyBatis Artifacts</id>
+					  <phase>generate-sources</phase>
+					  <goals>
+						<goal>generate</goal>
+					  </goals>
+					</execution>
+				  </executions>
+				<dependencies>
+					<dependency>
+						<groupId>org.postgresql</groupId>
+						<artifactId>postgresql</artifactId>
+						<version>${postgresql.jdbcDriver.version}</version>
+					</dependency>
+				</dependencies>
+			  </plugin>
+		</plugins>
+	</build>
+
+</project>

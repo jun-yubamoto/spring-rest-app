@@ -1,0 +1,11 @@
+resourcePackages:
+- com.example.jy.springoas.resource
+prettyPrint: true
+cacheTTL: 0
+openAPI:
+  info:
+    version: '@project.version@'
+    title: OpenAPI specification Sample App
+    description: 'This is a sample server.'
+    contact:
+      email: jun.ybmt@example.com

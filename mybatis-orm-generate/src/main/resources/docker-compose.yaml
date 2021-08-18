@@ -1,0 +1,18 @@
+version: '3.1'
+services:
+  db:
+    image: ${IMAGE_NAME}
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        POSTGRESQL_VERSION: ${POSTGRESQL_VERSION}
+        POSTGRES_INITDB_ARGS: "${POSTGRES_INITDB_ARGS}"
+    container_name: postgresql
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "@postgresql.port@:5432"

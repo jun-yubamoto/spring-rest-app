@@ -1,0 +1,40 @@
+<configuration>
+
+    <!-- 標準出力用設定 --> ・・・① 
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>%d{yyyy/MM/dd HH:mm:ss} %-5level [%thread] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- ファイルA出力用設定 --> ・・・②
+    <appender name="FILE_A" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 出力先ファイルパス -->
+        <file>@project.basedir@/test/app.log</file>
+
+        <!-- ログのローテーション設定 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <!-- 世代管理されるファイルの命名パターン -->
+            <fileNamePattern>@project.basedir@/test/app.log.%i</fileNamePattern>    <!-- %iはインデックス。minIndexからMaxIndexまでの連番 -->
+            <minIndex>1</minIndex>
+            <maxIndex>7</maxIndex>      <!-- 最大7ファイルまで世代管理 -->
+        </rollingPolicy>
+
+        <!-- ローテーションのトリガ。10MBに達した時点でローテーション。 -->
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <maxFileSize>10MB</maxFileSize>
+        </triggeringPolicy>
+
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>%d{yyyy/MM/dd HH:mm:ss} %-5level [%thread] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- rootロガー。ログは原則ファイルAと標準出力に出力する -->  ・・・⑤
+    <root level="DEBUG">
+        <appender-ref ref="STDOUT" />
+        <appender-ref ref="FILE_A" />
+    </root>
+</configuration>
